@@ -1,4 +1,4 @@
-﻿# Codex 安装流程总结
+# Codex 安装流程总结
 
 ## 安装环境
 - **操作系统**: Windows 10 (版本 10.0.26100)
@@ -154,3 +154,109 @@ codex --version
 ### 6. 上下文与使用边界
 - 不要跨回合继续沿用 skill，除非用户再次提及
 - 保持上下文精简，避免批量加载无关文件
+
+1) Codex Rules 模板（直接粘贴）
+
+把下面这段放到 Codex 的 Rules / Instructions 里（团队/个人规则都行）：
+
+# Language & Output
+- 默认用简体中文回答（除非用户明确要求英文）。
+- 输出结构优先：先结论/方案，再步骤，再注意事项。
+- 遇到术语：首次出现时给中文解释，并保留英文原词（例如：持续集成 CI）。
+
+# Coding Style
+- 生成代码时优先可读性与可维护性：
+  - 关键逻辑必须写注释：说明“为什么这么做”，而不是只写“做了什么”。
+  - 对边界条件、异常处理、并发/线程安全点写清楚注释。
+  - 复杂函数先写顶部“概要注释”，包含：输入/输出、关键假设、错误处理、时间复杂度（如适用）。
+- 若生成 .NET/C# 代码：
+  - 公共 API 用 XML 注释（///），包含 <summary> / <param> / <returns> / <exception>（适用时）。
+- 若生成 TypeScript/Vue：
+  - 公共函数/组件 props 用 JSDoc/TSDoc 注释。
+  - 关键状态与副作用位置标注注释。
+
+# File Encoding & New Files
+- 任何新建的文本文件默认使用 UTF-8 with BOM 编码（Windows 兼容优先）。
+- 如果需要修改已有文件，遵循仓库当前编码；若不确定，优先保持原样并提示用户。
+- 生成 PowerShell 脚本时也遵循 UTF-8 with BOM，避免中文输出乱码。
+
+# When uncertain
+- 不确定编码或项目约束时：先给出建议与最小变更方案，不要擅自大规模重构。
+
+
+这段的关键点是：“默认中文 + 注释策略 + 编码策略 + 不确定时的行为” 都写清楚，Codex 执行会更稳定。
+
+2) 真正让“UTF-8 with BOM”落地：仓库配置（推荐）
+
+仅靠规则不够稳（因为模型不一定能控制你编辑器的保存编码），最好在 repo 里加配置，让 IDE/编辑器跟着走。
+
+2.1 .editorconfig（核心）
+
+在仓库根目录新增/修改 .editorconfig：
+
+root = true
+
+[*]
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+
+[*.cs]
+indent_size = 4
+
+[*.ps1]
+charset = utf-8-bom
+
+[*.vue]
+charset = utf-8-bom
+
+[*.ts]
+charset = utf-8-bom
+
+[*.js]
+charset = utf-8-bom
+
+[*.json]
+charset = utf-8-bom
+
+
+charset = utf-8-bom 是关键。很多 IDE（含 VS / Rider / VS Code + EditorConfig 插件）会尊重它。
+
+2.2 Git 属性（可选，但很强）
+
+加一个 .gitattributes，避免换行/编码乱掉：
+
+* text=auto eol=crlf
+
+*.cs  text eol=crlf
+*.ps1 text eol=crlf
+*.ts  text eol=crlf
+*.vue text eol=crlf
+*.json text eol=crlf
+
+
+Git 本身不保证 BOM，但能保证换行一致，减少 Windows 上的“奇怪差异”。
+
+3) 让“注释更多”更可控：你可以加两条硬规则
+
+如果你希望 Codex 真的“注释密度更高”，建议再加两条可量化的规则（模型更容易遵守）：
+
+- 注释密度要求：每个非平凡函数至少 3 条注释（含函数概要注释 + 关键分支/边界/异常说明）。
+- 任何包含业务规则的逻辑：必须在代码旁用中文注释写出规则原意。
+
+4) 小提醒：BOM 的现实取舍（你做 OA/MIS 很常见）
+
+PowerShell + 中文输出：UTF-8 BOM 往往更省心（你前面也遇到过乱码）。
+
+Web 前端（TS/Vue/JSON）：部分工具链对 BOM 也能接受，但极少数情况下会踩坑（例如某些老的解析器/脚本）。
+如果你们前端链路曾出过 BOM 问题，可以改成：
+
+*.ps1 强制 utf-8-bom
+
+其他保持 utf-8
+
+你现在是统一要求 BOM，我上面给的是“全局 BOM”的方案。
+
+如果你告诉我：你用的是 Codex in ChatGPT 还是 VS Code/Cursor 里的 Codex，我还能把“Rules 放哪、怎么生效、怎么验证（新建文件确实是 BOM）”写成一步一步的操作清单。
