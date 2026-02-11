@@ -1,0 +1,77 @@
+Windows Registry Editor Version 5.00
+
+; ============================================
+; 在 Windows Terminal 中打开
+; ============================================
+
+; 1. 文件夹右键（点击文件夹图标）
+[HKEY_CLASSES_ROOT\Directory\shell\WindowsTerminal]
+@="Windows Terminal"
+"Icon"="D:\\Program Files\\terminal-1.23\\wt.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\Directory\shell\WindowsTerminal\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%V\""
+
+; 2. 文件夹内空白处右键（背景）
+[HKEY_CLASSES_ROOT\Directory\Background\shell\WindowsTerminal]
+@="Windows Terminal"
+"Icon"="D:\\Program Files\\terminal-1.23\\wt.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\WindowsTerminal\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%V\""
+
+; 3. 文件右键（在当前文件所在目录打开）
+[HKEY_CLASSES_ROOT\*\shell\WindowsTerminal]
+@="Windows Terminal"
+"Icon"="D:\\Program Files\\terminal-1.23\\wt.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\*\shell\WindowsTerminal\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%W\""
+
+
+; ============================================
+; 用 Claude 打开
+; ============================================
+
+; 1. 文件夹右键（Claude 打开整个文件夹）
+[HKEY_CLASSES_ROOT\Directory\shell\ClaudeCode]
+@="Claude"
+"Icon"="C:\\Users\\corningwang\\.local\\bin\\claude.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\Directory\shell\ClaudeCode\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%V\" cmd /k claude"
+
+; 2. 文件夹内空白处右键（背景）
+[HKEY_CLASSES_ROOT\Directory\Background\shell\ClaudeCode]
+@="Claude"
+"Icon"="C:\\Users\\corningwang\\.local\\bin\\claude.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\ClaudeCode\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%V\" cmd /k claude"
+
+; 3. 文件右键（Claude 打开文件所在目录）
+[HKEY_CLASSES_ROOT\*\shell\ClaudeCode]
+@="Claude"
+"Icon"="C:\\Users\\corningwang\\.local\\bin\\claude.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\*\shell\ClaudeCode\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%W\" cmd /k claude"
+
+
+; ============================================
+; 用 Claude 分析此文件（仅文件）
+; ============================================
+
+[HKEY_CLASSES_ROOT\*\shell\ClaudeAnalyze]
+@="Claude"
+"Icon"="C:\\Users\\corningwang\\.local\\bin\\claude.exe"
+"Position"="Top"
+
+[HKEY_CLASSES_ROOT\*\shell\ClaudeAnalyze\command]
+@="\"D:\\Program Files\\terminal-1.23\\wt.exe\" -d \"%W\" cmd /k \"echo 正在分析文件: %1 && claude\""
